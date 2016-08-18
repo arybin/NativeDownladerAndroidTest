@@ -1,0 +1,126 @@
+#include <jni.h>
+
+#include <stdio.h>
+#include <string>
+#include <iostream>
+#include <ostream>
+#include <fstream>
+
+#include <chrono>
+#include <pthread.h>
+#include <vector>
+
+#include "downloader/HTTPResponse.h"
+#include "downloader/URL.h"
+#include "downloader/DNSResolver.h"
+#include "downloader/Client.h"
+
+
+extern "C" {
+
+//prototype the function first
+void* print(void*);
+
+
+
+std::string ConvertJString(JNIEnv *env, jstring str) {
+    jboolean isCopy;
+    const jsize len = env->GetStringLength(str);
+    const char *strChars = env->GetStringUTFChars(str, &isCopy);
+    std::string result(strChars, len);
+    //don't need memory leaks everywhere
+    env->ReleaseStringUTFChars(str, strChars);
+    return result;
+}
+
+std::string startDownloading(std::string & url, std::string & filePath) {
+    HTTPResponse httpResponse;
+    URL u(url);
+    DNSResolver dnsResolver(u.host());
+
+    int port = u.port();
+    std::string host = dnsResolver.getHost();
+    std::string fileName(u.file());
+
+    Client client(port, host);
+
+    client.constructRequest("HEAD", u.host(), u.path(), "", "");
+    client.sendRequest();
+    std::string response = client.readResponse();
+    httpResponse.parse(response);
+    std::string totalLength = httpResponse.header(string("Content-Length"));
+//    std::cout<<"total length: "<< totalLength;
+
+    const int numberOfThreads = 2;
+    client.constructThreads(numberOfThreads, totalLength, u.host(), u.path());
+
+    std::vector<pthread_t> threads;
+
+    std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+
+    for (int i = 0; i < numberOfThreads; i++) {
+        pthread_t t;
+        pthread_create(&t, NULL, &print, (void*)&client.myData.at(i));
+        threads.emplace_back(t);
+    }
+
+    filePath.append(fileName);
+
+    std::remove(filePath.c_str());
+
+    std::string * ret;
+    std::ofstream file(filePath.c_str());
+    void ** r = (void**) (&ret);
+    for (int i = 0; i < threads.size(); i++) {
+        pthread_join(threads.at(i), r);
+        if (ret != 0) {
+            file << *ret;
+
+        }
+    }
+
+//    std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+    file.close();
+
+//    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
+
+//    std::cout <<"\nduration from old school threads "<< duration<<std::endl;
+
+    return filePath;
+
+
+}
+
+
+jstring
+Java_com_example_andreirybin_nativeapptest_MainActivity_stringFromJNI(
+        JNIEnv *env,
+        jobject /* this */,
+        jstring url,
+        jstring locationOnDevice
+) {
+//*
+    std::string cpp_url = ConvertJString(env, url);
+    std::string cpp_location = ConvertJString(env, locationOnDevice);
+    std::string fileLocation = startDownloading(cpp_url, cpp_location);
+//NetworkingInterface networkingInterface(cpp_url, cpp_location);
+//    networkingInterface.download();
+    //*/
+    return env->NewStringUTF(fileLocation.c_str());
+}
+
+//thread routine
+void* print(void* ptr) {
+    Client::thdata_ *data;
+    data = (Client::thdata_ *) ptr;
+
+    Client c(data->port, data->ip);
+    c.constructRequest("GET", data->host, data->path, data->str_start,
+                       data->str_end);
+    string req = c.getRequest();
+    c.sendRequest();
+    string * downloaded = new string(c.download(data->starting_point, data->ending_point));
+
+    return (void*) downloaded;
+}
+}
