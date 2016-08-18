@@ -2,15 +2,12 @@ package com.example.andreirybin.nativeapptest;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.MemoryPolicy;
@@ -52,16 +49,11 @@ public class MainActivity extends AppCompatActivity {
         mSendNativeRequest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.gc();
+
                 final long startTime = System.currentTimeMillis();
                 nativeFilePath = stringFromJNI(urls[0], mExternalStorage);
                 final long endTime = System.currentTimeMillis();
-                total[0] = endTime - startTime;
-
-                StringBuilder sb = new StringBuilder();
-                sb.append("Total time: ");
-                sb.append(total[0]);
-                mTextView.setText(sb.toString());
+                setExecutionTimeOnView(startTime, endTime, total);
 
                 File imgFile = new File(nativeFilePath);
                 if(imgFile.exists()) {
@@ -77,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(final View view) {
                 final long startTime = System.currentTimeMillis();
+
                 Picasso.with(view.getContext())
                         .load(urls[0])
                         .memoryPolicy(MemoryPolicy.NO_CACHE)
@@ -85,12 +78,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onSuccess() {
                                 final long endTime = System.currentTimeMillis();
-                                total[0] = endTime - startTime;
-                                StringBuilder sb = new StringBuilder();
-                                sb.append("Total time: ");
-                                sb.append(total[0]);
-                                mTextView.setText(sb.toString());
-                                //Toast.makeText(view.getContext(), sb.toString(), Toast.LENGTH_LONG).show();
+                                setExecutionTimeOnView(startTime, endTime, total);
                             }
 
                             @Override
@@ -110,6 +98,15 @@ public class MainActivity extends AppCompatActivity {
                 mTextView.setText("Cleared");
             }
         });
+    }
+
+    private void setExecutionTimeOnView(long startTime, long endTime, long[] total) {
+        total[0] = endTime - startTime;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Total time: ");
+        sb.append(total[0]);
+        mTextView.setText(sb.toString());
     }
 
     private void clearCacheFromNative(String externalStorageLocation) {
