@@ -48,12 +48,7 @@ public class NativeAsyncNetworkRequest extends AsyncTask<String, Void, String> {
 
     @Override
     protected void onPostExecute(String s) {
-        mEndTime = System.currentTimeMillis();
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("Total time: ");
-        sb.append(mEndTime - mStartTime);
-        mTitle.setText(sb.toString());
         //this is going to return once the location comes back
         super.onPostExecute(s);
 
@@ -63,5 +58,9 @@ public class NativeAsyncNetworkRequest extends AsyncTask<String, Void, String> {
             Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
             mViewToPopulate.setImageBitmap(bitmap);
         }
+        mEndTime = System.currentTimeMillis();
+        String sb = "Total time: " +
+                (mEndTime - mStartTime);
+        mTitle.setText(sb);
     }
 }
