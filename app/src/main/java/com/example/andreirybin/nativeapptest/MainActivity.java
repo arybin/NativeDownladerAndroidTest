@@ -2,6 +2,7 @@ package com.example.andreirybin.nativeapptest;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.andreirybin.nativeapptest.asyncrequests.NativeAsyncNetworkRequest;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
@@ -26,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
     ImageView mImageView;
 
     String mExternalStorage;
+
+    private NativeAsyncNetworkRequest mNativeAsyncNetworkRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,17 +54,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                final long startTime = System.currentTimeMillis();
-                nativeFilePath = stringFromJNI(urls[0], mExternalStorage);
-                final long endTime = System.currentTimeMillis();
-                setExecutionTimeOnView(startTime, endTime, total);
+                mNativeAsyncNetworkRequest = new NativeAsyncNetworkRequest(mExternalStorage, mImageView, mTextView);
+                mNativeAsyncNetworkRequest.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, urls);
 
-                File imgFile = new File(nativeFilePath);
-                if(imgFile.exists()) {
-                    //TODO this throws out of memory exception for large files, need to fix it
-                    Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-                    mImageView.setImageBitmap(bitmap);
-                }
             }
         });
 

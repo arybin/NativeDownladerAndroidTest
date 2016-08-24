@@ -19,9 +19,7 @@
 extern "C" {
 
 //prototype the function first
-void* print(void*);
-
-
+void *print(void *);
 
 std::string ConvertJString(JNIEnv *env, jstring str) {
     jboolean isCopy;
@@ -33,7 +31,7 @@ std::string ConvertJString(JNIEnv *env, jstring str) {
     return result;
 }
 
-std::string startDownloading(std::string & url, std::string & filePath) {
+std::string startDownloading(std::string &url, std::string &filePath) {
     HTTPResponse httpResponse;
     URL u(url);
     DNSResolver dnsResolver(u.host());
@@ -60,7 +58,7 @@ std::string startDownloading(std::string & url, std::string & filePath) {
 
     for (int i = 0; i < numberOfThreads; i++) {
         pthread_t t;
-        pthread_create(&t, NULL, &print, (void*)&client.myData.at(i));
+        pthread_create(&t, NULL, &print, (void *) &client.myData.at(i));
         threads.emplace_back(t);
     }
 
@@ -68,9 +66,9 @@ std::string startDownloading(std::string & url, std::string & filePath) {
 
     std::remove(filePath.c_str());
 
-    std::string * ret;
+    std::string *ret;
     std::ofstream file(filePath.c_str());
-    void ** r = (void**) (&ret);
+    void **r = (void **) (&ret);
     for (int i = 0; i < threads.size(); i++) {
         pthread_join(threads.at(i), r);
         if (ret != 0) {
@@ -110,7 +108,7 @@ Java_com_example_andreirybin_nativeapptest_MainActivity_stringFromJNI(
 }
 
 //thread routine
-void* print(void* ptr) {
+void *print(void *ptr) {
     Client::thdata_ *data;
     data = (Client::thdata_ *) ptr;
 
@@ -119,8 +117,19 @@ void* print(void* ptr) {
                        data->str_end);
     string req = c.getRequest();
     c.sendRequest();
-    string * downloaded = new string(c.download(data->starting_point, data->ending_point));
+    string *downloaded = new string(c.download(data->starting_point, data->ending_point));
 
-    return (void*) downloaded;
+    return (void *) downloaded;
+}
+
+jstring
+Java_com_example_andreirybin_nativeapptest_asyncrequests_NativeAsyncNetworkRequest_downloadLocationFromNative(
+        JNIEnv *env, jobject instance, jstring url_, jstring location_) {
+
+    std::string cpp_url = ConvertJString(env, url_);
+    std::string cpp_location = ConvertJString(env, location_);
+    std::string fileLocation = startDownloading(cpp_url, cpp_location);
+
+    return env->NewStringUTF(fileLocation.c_str());
 }
 }
