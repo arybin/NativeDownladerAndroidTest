@@ -33,8 +33,7 @@ HTTPRequest::~HTTPRequest()
 {
 }
 
-void
-HTTPRequest::parse(string& http)
+void HTTPRequest::parse(string& http)
 {
       // empty everything
     method_.clear();
@@ -64,129 +63,112 @@ HTTPRequest::parse(string& http)
         getHeader(*line);
 }
 
-string&
-HTTPRequest::method()
+string& HTTPRequest::method()
 {
     return method_;
 }
 
-void
-HTTPRequest::method(std::string m)
+void HTTPRequest::method(std::string m)
 {
     method_ = m;
 }
 
-void
-HTTPRequest::method(const char* m)
+void HTTPRequest::method(const char* m)
 {
     method_ = string(m);
 }
 
 
-string&
-HTTPRequest::uri()
+string& HTTPRequest::uri()
 {
     return uri_;
 }
 
-void
-HTTPRequest::uri(std::string u)
+void HTTPRequest::uri(std::string u)
 {
     uri_ = u;
 }
 
-void
-HTTPRequest::uri(const char* u)
+void HTTPRequest::uri(const char* u)
 {
     uri_ = string(u);
 }
 
 
-string&
-HTTPRequest::version()
+string& HTTPRequest::version()
 {
     return version_;
 }
 
-void
-HTTPRequest::version(std::string v)
+void HTTPRequest::version(std::string v)
 {
     version_ = v;
 }
 
-void
-HTTPRequest::version(const char* v)
+void HTTPRequest::version(const char* v)
 {
     version_ = string(v);
 }
 
-string&
-HTTPRequest::header(string field)
+string& HTTPRequest::header(string field)
 {
     return headers_[field];
 }
 
-void
-HTTPRequest::header(std::string field,std::string value)
+void HTTPRequest::header(std::string field,std::string value)
 {
     headers_[field] = value;
 }
 
-void
-HTTPRequest::header(string field,int value)
+void HTTPRequest::header(string field,int value)
 {
     stringstream s;
     s << value;
     headers_[field] = s.str();
 }
 
-void
-HTTPRequest::header(const char* field,const char* value)
+void HTTPRequest::header(const char* field,const char* value)
 {
     headers_[string(field)] = string(value);
 }
 
-void
-HTTPRequest::header(const char* field,int value)
+void HTTPRequest::header(const char* field,int value)
 {
     stringstream s;
     s << value;
-    headers_[string(field)] = s.str();
+    headers_[string(field)] =  s.str();
 }
 
-string
-HTTPRequest::str()
+string HTTPRequest::getHeader()
 {
-    string message;
-      // get the request line
-    message = method_ + " " + uri_ + " " + version_ + "\r\n";
+    // get the request line
+    string message = method_ + " " + uri_ + " " + version_ + "\r\n";
 
       // get the headers
-    map<string,string>::iterator mk;
-    for (mk = headers_.begin(); mk != headers_.end(); mk++)
+    //map<string,string>::iterator mk;
+    for (auto mk = headers_.begin(); mk != headers_.end(); mk++) {
         message += mk->first + ": " + mk->second + "\r\n";
+    }
     message += "\r\n";
     return message;
 }
 
-string
-HTTPRequest::pstr()
+string HTTPRequest::pstr()
 {
-    string message;
-      // get the request line
-    message = method_ + " " + uri_ + " " + version_ + "\r\n";
+    // get the request line
+    string message = method_ + " " + uri_ + " " + version_ + "\r\n";
 
       // get the headers
-    map<string,string>::iterator mk;
-    for (mk = headers_.begin(); mk != headers_.end(); mk++)
+//    map<string,string>::iterator mk;
+    for (auto mk = headers_.begin(); mk != headers_.end(); mk++) {
         message += mk->first + ": " + mk->second + "\r\n";
+    }
     return message;
 }
 
-void
-HTTPRequest::print()
+void HTTPRequest::print()
 {
-    string message = str();
+    string message = getHeader();
     cout << message;
 }
 
@@ -194,8 +176,7 @@ HTTPRequest::print()
 // HTTPRequest: private methods
 //
 
-void
-HTTPRequest::getRequest(string &line)
+void HTTPRequest::getRequest(string &line)
 {
       // parse line into an HTTP request
     vector<string>tokens = tokenizer_.parse(line);
@@ -206,8 +187,7 @@ HTTPRequest::getRequest(string &line)
     version_ = tokens.at(2);
 }
 
-void
-HTTPRequest::getHeader(string &line)
+void HTTPRequest::getHeader(string &line)
 {
       // parse line into an HTTP header
     vector<string> tokens = tokenizer_.parseTwo(line, ":");
@@ -224,3 +204,9 @@ HTTPRequest::getHeader(string &line)
     }
     headers_[name] = value;
 }
+
+void HTTPRequest::insertHeader(std::string & field, std::string & value) {
+    headers_.emplace(field, value);
+}
+
+

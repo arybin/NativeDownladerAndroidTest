@@ -19,12 +19,10 @@
 
 URL::URL()
 {
-    port_ = 80;
 }
 
 URL::URL(std::string & url)
 {
-    port_ = 80;
     parse(url);
 }
 
@@ -32,46 +30,46 @@ URL::~URL()
 {
 }
 
-string
-URL::url()
+string URL::url()
 {
   return url_;
 }
 
-string
-URL::host()
+string URL::host()
 {
   return host_;
 }
 
-int
-URL::port()
+int URL::port()
 {
   return port_;
 }
 
-string
-URL::path()
+string URL::path()
 {
   return path_;
 }
 
-string
-URL::file()
+string URL::file()
 {
   return file_;
 }
 
-void
-URL::parse(string& url)
+void URL::parse(string& url)
 {
     // strip "http://" if present
     string::size_type pos = url.find("http://");
+    string::size_type httpsPos = url.find("https:/");
     string hostpath;
-    if (pos == 0)
+    if (pos == 0) {
         hostpath = url.substr(7,string::npos);
-    else
+        port_ = 80;
+    } else if(httpsPos == 0) {
+        hostpath = url.substr(8,string::npos);
+        port_ = 443;
+    } else {
         hostpath = url;
+    }
 
     // get host and port
     string hostport;
@@ -94,8 +92,8 @@ URL::parse(string& url)
     // separate host and port
     vector<string> tokens = tokenizer_.parseTwo(hostport, ":");
     host_ = tokens.at(0);
-    if (tokens.at(1) == "")
-        port_ = 80;
-    else
+    //make sure to use the port if it's specified after the url e.g. localhost:3000
+    if (tokens.at(1) != "") {
         port_ = atoi(tokens.at(1).c_str());
+    }
 }

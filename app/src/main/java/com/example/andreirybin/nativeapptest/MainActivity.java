@@ -36,7 +36,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         final String[] urls = {"http://services.hanselandpetal.com/photos/string_of_pearls.jpg", //tiny file
-                "http://services.hanselandpetal.com/selfie%20dogs-488938505.jpg" //5mb file
+                "http://services.hanselandpetal.com/selfie%20dogs-488938505.jpg", //5mb file
+                "https://medpix.nlm.nih.gov/images/full/synpic54731.jpg" //https test
         };
 
         mExternalStorage = getExternalFilesDir(null).getAbsolutePath() + "/";
@@ -67,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
                 final long startTime = System.currentTimeMillis();
 
                 Picasso.with(view.getContext())
-                        .load(urls[0])
+                        .load(urls[2])
                         .memoryPolicy(MemoryPolicy.NO_CACHE)
                         .networkPolicy(NetworkPolicy.NO_CACHE)
                         .into(mImageView, new Callback() {

@@ -43,18 +43,16 @@ std::string startDownloading(std::string &url, std::string &filePath) {
     Client client(port, host);
 
     client.constructRequest("HEAD", u.host(), u.path(), "", "");
+    std::string requestBody = client.getRequest();
     client.sendRequest();
     std::string response = client.readResponse();
     httpResponse.parse(response);
     std::string totalLength = httpResponse.header(string("Content-Length"));
-//    std::cout<<"total length: "<< totalLength;
 
     const int numberOfThreads = 2;
     client.constructThreads(numberOfThreads, totalLength, u.host(), u.path());
 
     std::vector<pthread_t> threads;
-
-    std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
     for (int i = 0; i < numberOfThreads; i++) {
         pthread_t t;
@@ -63,8 +61,6 @@ std::string startDownloading(std::string &url, std::string &filePath) {
     }
 
     filePath.append(fileName);
-
-    std::remove(filePath.c_str());
 
     std::string *ret;
     std::ofstream file(filePath.c_str());
@@ -77,18 +73,9 @@ std::string startDownloading(std::string &url, std::string &filePath) {
         }
     }
 
-//    std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
     file.close();
-
-//    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
-
-//    std::cout <<"\nduration from old school threads "<< duration<<std::endl;
-
     return filePath;
-
-
 }
-
 
 jstring
 Java_com_example_andreirybin_nativeapptest_MainActivity_stringFromJNI(
@@ -97,13 +84,9 @@ Java_com_example_andreirybin_nativeapptest_MainActivity_stringFromJNI(
         jstring url,
         jstring locationOnDevice
 ) {
-//*
     std::string cpp_url = ConvertJString(env, url);
     std::string cpp_location = ConvertJString(env, locationOnDevice);
     std::string fileLocation = startDownloading(cpp_url, cpp_location);
-//NetworkingInterface networkingInterface(cpp_url, cpp_location);
-//    networkingInterface.download();
-    //*/
     return env->NewStringUTF(fileLocation.c_str());
 }
 

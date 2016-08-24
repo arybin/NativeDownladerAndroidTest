@@ -59,9 +59,10 @@ class HTTPRequest {
     void header(std::string,int);
     void header(const char*,const char*);
     void header(const char*,int);
+    void insertHeader(std::string&, std::string&);
 
       // Return the response as a string
-    std::string str();
+    std::string getHeader();
       // Return a partial response as a string -- leave out the final
       // CRLF so that the caller can add more headers
     std::string pstr();

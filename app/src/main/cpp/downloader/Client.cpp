@@ -71,20 +71,19 @@ void Client::sendRequest() {
 string Client::readResponse() {
 	// read the response
 
-	buf = (char *) calloc(1024, sizeof(char));
+	buf[1024];
 	memset(buf, 0, 1024);
 	string downloaded;
 
 	while (true) {
 		long nread = recv(s, buf, 1024, 0);
 		downloaded.append(buf, nread);
-		if (downloaded.at(downloaded.length() - 1) == 10
+		if(downloaded.size() != 0) {
+			if (downloaded.at(downloaded.length() - 1) == 10
 				&& downloaded.at(downloaded.length() - 3) == 10) {
-
-			break;
-
+				break;
+			}
 		}
-
 	}
 	return downloaded;
 }
@@ -152,7 +151,7 @@ void Client::constructRequest(string requestType, string host, string path,
 		h_request.header("Range", "bytes=" + begBytes + "-" + endBytes); //put in manually for now
 	}
 
-	request = h_request.str();
+	request = h_request.getHeader();
 }
 
 void Client::printRequest() {

@@ -22,6 +22,7 @@ public class NativeAsyncNetworkRequest extends AsyncTask<String, Void, String> {
     private String mLocationOnDisk;
     private ImageView mViewToPopulate;
     private TextView mTitle;
+    private String mFileLocation;
 
     private long mStartTime;
     private long mEndTime;
@@ -30,6 +31,7 @@ public class NativeAsyncNetworkRequest extends AsyncTask<String, Void, String> {
         mLocationOnDisk = externalStorage;
         mViewToPopulate = imageView;
         mTitle = title;
+        mFileLocation = "";
     }
 
     /**
@@ -41,7 +43,7 @@ public class NativeAsyncNetworkRequest extends AsyncTask<String, Void, String> {
 
     @Override
     protected String doInBackground(String... strings) {
-        String url = strings[0];
+        String url = strings[2];
         mStartTime = System.currentTimeMillis();
         return downloadLocationFromNative(url, mLocationOnDisk);
     }
@@ -51,16 +53,21 @@ public class NativeAsyncNetworkRequest extends AsyncTask<String, Void, String> {
 
         //this is going to return once the location comes back
         super.onPostExecute(s);
+        mFileLocation = s;
 
-        File imgFile = new File(s);
+        mEndTime = System.currentTimeMillis();
+        String sb = "Total time: " +
+                (mEndTime - mStartTime);
+        mTitle.setText(sb);
+    }
+
+    public void loadIntoImageView() {
+        File imgFile = new File(mFileLocation);
         if(imgFile.exists()) {
             //TODO this throws out of memory exception for large files, need to fix it
             Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
             mViewToPopulate.setImageBitmap(bitmap);
         }
-        mEndTime = System.currentTimeMillis();
-        String sb = "Total time: " +
-                (mEndTime - mStartTime);
-        mTitle.setText(sb);
+        System.gc();
     }
 }

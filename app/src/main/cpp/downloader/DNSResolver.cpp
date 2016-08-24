@@ -6,7 +6,7 @@
  */
 
 #include "DNSResolver.h"
-
+//http://long.ccaba.upc.edu/long/045Guidelines/eva/ipv6.html#daytimeClient4
 DNSResolver::DNSResolver(string url_to_resolve) {
 	host = url_to_resolve;
 
