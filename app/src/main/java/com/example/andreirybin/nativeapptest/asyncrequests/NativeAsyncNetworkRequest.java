@@ -16,7 +16,7 @@ public class NativeAsyncNetworkRequest extends AsyncTask<String, Void, String> {
 
     // Used to load the 'native-lib' library on application startup.
     static {
-        System.loadLibrary("native-lib");
+        System.loadLibrary("testlibrary");
     }
 
     private String mLocationOnDisk;
@@ -45,6 +45,7 @@ public class NativeAsyncNetworkRequest extends AsyncTask<String, Void, String> {
     protected String doInBackground(String... strings) {
         String url = strings[2];
         mStartTime = System.currentTimeMillis();
+        //return "hello";
         return downloadLocationFromNative(url, mLocationOnDisk);
     }
 
@@ -56,9 +57,10 @@ public class NativeAsyncNetworkRequest extends AsyncTask<String, Void, String> {
         mFileLocation = s;
 
         mEndTime = System.currentTimeMillis();
-        String sb = "Total time: " +
-                (mEndTime - mStartTime);
+        String sb = "Total time: " + s;
+                //(mEndTime - mStartTime);
         mTitle.setText(sb);
+        //loadIntoImageView();
     }
 
     public void loadIntoImageView() {

@@ -15,7 +15,6 @@
 #include "downloader/DNSResolver.h"
 #include "downloader/Client.h"
 
-
 extern "C" {
 
 //prototype the function first
@@ -72,7 +71,6 @@ std::string startDownloading(std::string &url, std::string &filePath) {
 
         }
     }
-
     file.close();
     return filePath;
 }
@@ -112,7 +110,6 @@ Java_com_example_andreirybin_nativeapptest_asyncrequests_NativeAsyncNetworkReque
     std::string cpp_url = ConvertJString(env, url_);
     std::string cpp_location = ConvertJString(env, location_);
     std::string fileLocation = startDownloading(cpp_url, cpp_location);
-
     return env->NewStringUTF(fileLocation.c_str());
 }
 }

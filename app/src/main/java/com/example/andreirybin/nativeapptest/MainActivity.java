@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
                 final long startTime = System.currentTimeMillis();
 
                 Picasso.with(view.getContext())
-                        .load(urls[2])
+                        .load(urls[1])
                         .memoryPolicy(MemoryPolicy.NO_CACHE)
                         .networkPolicy(NetworkPolicy.NO_CACHE)
                         .into(mImageView, new Callback() {
@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Used to load the 'native-lib' library on application startup.
     static {
-        System.loadLibrary("native-lib");
+        System.loadLibrary("testlibrary");
     }
 
 }
