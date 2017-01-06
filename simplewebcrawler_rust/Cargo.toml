@@ -1,0 +1,15 @@
+[package]
+name = "sample"
+version = "0.1.0"
+authors = ["Andrei <andrew.rybin@gmail.com>"]
+
+[dependencies]
+
+pnet = "0.15.0"
+curl = "0.4.2"
+regex = "0.2.1"
+jni-sys = "0.2.2"
+
+[lib]
+name = "sample"
+crate-type = ["staticlib", "cdylib"]
